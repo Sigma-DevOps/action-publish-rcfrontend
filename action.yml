@@ -30,7 +30,7 @@ runs:
   using: "composite"
   steps:
     - name: Git Checkout
-      uses: actions/checkout@v1.1
+      uses: actions/checkout@v1
 
     - name: Get Build Configs (Public Gateway)
       uses: Sigma-DevOps/action-rcconfig@v1.1
