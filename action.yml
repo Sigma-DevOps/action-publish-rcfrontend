@@ -35,14 +35,14 @@ runs:
       uses: actions/checkout@v1
 
     - name: Get Build Configs (Public Gateway)
-      uses: Sigma-DevOps/action-rcconfig
+      uses: Sigma-DevOps/action-rcconfig@v1
       id: public-gateway
       with:
         key: ${{ inputs.public-gateway-key }}
         secret: ${{ inputs.rcconfig-secret }}
 
     - name: Get Build Configs (Private Gateway)
-      uses: Sigma-DevOps/action-rcconfig
+      uses: Sigma-DevOps/action-rcconfig@v1
       id: private-gateway
       with:
         key: ${{ inputs.private-gateway-key }}
@@ -67,7 +67,7 @@ runs:
           --build-arg experimental=${{ inputs.experimental-build }} .
 
     - name: Push To RCCloud Registry
-      uses: Sigma-DevOps/action-publish-rcc-image
+      uses: Sigma-DevOps/action-publish-rcc-image@v1
       with:
         image-tag: ${{ steps.tag.outputs.rctag }}
         digitalocean-token: ${{ inputs.digitalocean-token }}
