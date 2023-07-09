@@ -53,7 +53,7 @@ runs:
     - name: Set Image tag
       shell: bash
       id: tag
-      run: echo "rctag=registry.digitalocean.com/rcc/rc-frontend:${{ inputs.version }}-${{ inputs.name }}-$GITHUB_SHA_SHORT" >> $GITHUB_OUTPUT
+      run: echo "rctag=${{ inputs.version }}-${{ inputs.name }}-$GITHUB_SHA_SHORT" >> $GITHUB_OUTPUT
 
     - name: Build latest
       shell: bash
