@@ -1,0 +1,73 @@
+name: "BuildPushRCFront"
+description: "Build and Push RCFront compatible apps to RCCloud Container Registry"
+inputs:
+  version:
+    description: "RabinCash Frontend version (included in tag)"
+    required: true
+  name:
+    description: "Application Name (included in tag)"
+    required: true
+  experimental-build:
+    description: "Build in experimental mode"
+    required: false
+    default: "0"
+  public-gateway-key:
+    description: "Key for Public Gateway Address in RCConfig"
+    required: false
+    default: "raabin-gateway-public"
+  private-gateway-key:
+    description: "Key for Private Gateway Address in RCConfig"
+    required: false
+    default: "rabincash-gateway-private-rcc"
+  rcconfig-secret:
+    description: "Secret Key to get RCConfigs"
+    required: false
+    default: ${{ secrets.RCCONFIG_SECRET }}
+  digitalocean-token:
+    description: "DigitalOcean READ/WRITE Token"
+    required: false
+    default: ${{ secrets.DIGITAL_OCEAN_TOKEN }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Git Checkout
+      uses: actions/checkout@v1
+
+    - name: Get Build Configs (Public Gateway)
+      uses: Sigma-DevOps/action-rcconfig
+      id: public-gateway
+      with:
+        key: ${{ inputs.public-gateway-key }}
+        secret: ${{ inputs.rcconfig-secret }}
+
+    - name: Get Build Configs (Private Gateway)
+      uses: Sigma-DevOps/action-rcconfig
+      id: private-gateway
+      with:
+        key: ${{ inputs.private-gateway-key }}
+        secret: ${{ inputs.rcconfig-secret }}
+
+    - name: Trim Commit Hash
+      shell: bash
+      run: echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
+
+    - name: Set Image tag
+      shell: bash
+      id: tag
+      run: echo "rctag=registry.digitalocean.com/rcc/rc-frontend:${{ inputs.version }}-${{ inputs.name }}-$GITHUB_SHA_SHORT" >> $GITHUB_OUTPUT
+
+    - name: Build latest
+      shell: bash
+      run: |
+        docker build \
+          -t ${{ steps.tag.outputs.rctag }} \
+          --build-arg public_gateway=${{ steps.public-gateway.outputs.value }} \
+          --build-arg private_gateway=${{ steps.private-gateway.outputs.value }} \
+          --build-arg experimental=${{ inputs.experimental-build }} .
+
+    - name: Push To RCCloud Registry
+      uses: Sigma-DevOps/action-publish-rcc-image
+      with:
+        image-tag: ${{ steps.tag.outputs.rctag }}
+        digitalocean-token: ${{ inputs.digitalocean-token }}
