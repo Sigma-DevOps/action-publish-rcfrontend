@@ -53,7 +53,7 @@ runs:
     - name: Set Image tag
       shell: bash
       id: tag
-      run: echo "rctag=${{ inputs.version }}-${{ inputs.name }}-$GITHUB_SHA_SHORT" >> $GITHUB_OUTPUT
+      run: echo "rctag=registry.digitalocean.com/rcc/rc-frontend:${{ inputs.version }}-${{ inputs.name }}-$GITHUB_SHA_SHORT" >> $GITHUB_OUTPUT
 
     - name: Build latest
       shell: bash
@@ -65,7 +65,7 @@ runs:
           --build-arg experimental=${{ inputs.experimental-build }} .
 
     - name: Push To RCCloud Registry
-      uses: Sigma-DevOps/action-publish-rcc-image@v1.1
+      uses: Sigma-DevOps/action-publish-rcc-image@v1.2
       with:
         image-tag: ${{ steps.tag.outputs.rctag }}
         digitalocean-token: ${{ inputs.digitalocean-token }}
